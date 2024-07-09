@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import { CardWrapper } from './card-wrapper';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -22,7 +22,8 @@ import { login } from '@/actions/login';
 export function LoginForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
+  const [transiton, startTransition] = useTransition();
+  
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -34,10 +35,11 @@ export function LoginForm() {
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setSuccess('');
     setError('');
-
-    login(values).then((data: any) => {
-      setError(data.error);
-      setSuccess(data.success);
+    startTransition(() => {
+      login(values).then((data: any) => {
+        setError(data.error);
+        setSuccess(data.success);
+      });
     });
   };
 
@@ -59,6 +61,7 @@ export function LoginForm() {
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
+                      disabled={transiton}
                       {...field}
                       type="email"
                       placeholder="john.doe@example.com"
@@ -75,7 +78,12 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" placeholder="1234Oo!" />
+                    <Input
+                      disabled={transiton}
+                      {...field}
+                      type="password"
+                      placeholder="1234Oo!"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -84,7 +92,7 @@ export function LoginForm() {
           </div>
           <FormError message={error} />
           <FormSuccess message={success} />
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" disabled={transiton}>
             Login
           </Button>
         </form>
