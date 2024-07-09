@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import { CardWrapper } from './card-wrapper';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -17,12 +17,12 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { FormError } from '../form-error';
 import { FormSuccess } from '../form-success';
-import { login } from '@/actions/login';
 import { register } from '@/actions/register';
 
 export function RegisterForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, startIsLoading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
@@ -36,10 +36,12 @@ export function RegisterForm() {
   const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
     setSuccess('');
     setError('');
+    startIsLoading(true);
 
     register(values).then((data: any) => {
       setError(data.error);
       setSuccess(data.success);
+      startIsLoading(false);
     });
   };
 
@@ -61,6 +63,7 @@ export function RegisterForm() {
                   <FormLabel>name</FormLabel>
                   <FormControl>
                     <Input
+                      disabled={isLoading}
                       {...field}
                       type="name"
                       placeholder="John doe"
@@ -78,6 +81,7 @@ export function RegisterForm() {
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
+                      disabled={isLoading}
                       {...field}
                       type="email"
                       placeholder="john.doe@example.com"
@@ -94,7 +98,12 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" placeholder="1234Oo!" />
+                    <Input
+                      disabled={isLoading}
+                      {...field}
+                      type="password"
+                      placeholder="1234Oo!"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -103,7 +112,7 @@ export function RegisterForm() {
           </div>
           <FormError message={error} />
           <FormSuccess message={success} />
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" disabled={isLoading}>
             Create an account!
           </Button>
         </form>
