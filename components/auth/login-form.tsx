@@ -18,12 +18,20 @@ import { Button } from '../ui/button';
 import { FormError } from '../form-error';
 import { FormSuccess } from '../form-success';
 import { login } from '@/actions/login';
+import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
+import { useSearchParams } from 'next/navigation';
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get('error') === 'OAuthAccountNotLinked'
+      ? 'Email already in use with different provider'
+      : '';
+
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [transiton, startTransition] = useTransition();
-  
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -35,11 +43,11 @@ export function LoginForm() {
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setSuccess('');
     setError('');
-    startTransition(() => {
-      login(values).then((data: any) => {
-        setError(data.error);
-        setSuccess(data.success);
-      });
+    setIsLoading(true);
+    login(values).then((data: any) => {
+      setError(data?.error);
+      setSuccess(data?.success);
+      setIsLoading(false);
     });
   };
 
@@ -61,7 +69,7 @@ export function LoginForm() {
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={transiton}
+                      disabled={isLoading}
                       {...field}
                       type="email"
                       placeholder="john.doe@example.com"
@@ -79,7 +87,7 @@ export function LoginForm() {
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={transiton}
+                      disabled={isLoading}
                       {...field}
                       type="password"
                       placeholder="1234Oo!"
@@ -90,9 +98,9 @@ export function LoginForm() {
               )}
             />
           </div>
-          <FormError message={error} />
+          <FormError message={error || urlError} />
           <FormSuccess message={success} />
-          <Button type="submit" className="w-full" disabled={transiton}>
+          <Button type="submit" className="w-full" disabled={isLoading}>
             Login
           </Button>
         </form>
