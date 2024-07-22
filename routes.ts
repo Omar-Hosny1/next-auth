@@ -2,7 +2,7 @@
  * Public routes that does not need the user to be authenticated
  * @type {string[]}
  */
-export const publicRoutes = ['/'];
+export const publicRoutes = ['/', '/auth/new-verification'];
 
 /**
  * Public routes that need the user to be authenticated
