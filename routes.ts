@@ -8,7 +8,7 @@ export const publicRoutes = ['/', '/auth/new-verification'];
  * Public routes that need the user to be authenticated
  * @type {string[]}
  */
-export const authRoutes = ['/auth/login', '/auth/register', '/auth/error'];
+export const authRoutes = ['/auth/login', '/auth/register', '/auth/error', '/auth/reset', '/auth/new-password'];
 
 /**
  * These routes used for interacting with the auth purposes
