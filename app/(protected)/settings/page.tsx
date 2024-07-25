@@ -14,6 +14,7 @@ import { useMutation } from '@tanstack/react-query';
 import { UserRole } from '@prisma/client';
 import { Select, Switch } from '@chakra-ui/react';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const fieldStyles = {
   padding: '8.5px 16px',
@@ -25,8 +26,9 @@ const fieldStyles = {
 };
 
 function SettingsPage() {
-  const { update } = useSession();
+  const { update, status } = useSession();
   const user = useUser();
+  const router = useRouter();
 
   const { isLoading, mutate } = useMutation(settings, {
     onSuccess: (data) => {
@@ -38,6 +40,15 @@ function SettingsPage() {
       }
     },
   });
+
+  useEffect(() => {
+    router.refresh();
+    console.log('RELOADING');
+    return () => {
+      router.refresh();
+      console.log('RELOADING UNMOUNT');
+    };
+  }, []);
 
   const initialValues: z.infer<typeof SettingsSchema> = {
     name: user?.name || undefined,
