@@ -26,7 +26,7 @@ const fieldStyles = {
 };
 
 function SettingsPage() {
-  const { update, status } = useSession();
+  const { update } = useSession();
   const user = useUser();
   const router = useRouter();
 
@@ -42,8 +42,10 @@ function SettingsPage() {
   });
 
   useEffect(() => {
-    router.refresh();
-    console.log('RELOADING');
+    console.log(user);
+    if (!user) {
+      window.location.reload();
+    }
     return () => {
       router.refresh();
       console.log('RELOADING UNMOUNT');
